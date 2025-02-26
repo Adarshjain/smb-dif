@@ -1,0 +1,17 @@
+{
+  "name": "smb-dif",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "diff": "node diff.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "mdb-reader": "^3.0.1"
+  }
+}
