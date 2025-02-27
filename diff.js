@@ -42,7 +42,7 @@ const whiteListedColumns = [
     "intrate"
 ];
 
-const lowerCaseKeys = (obj) => {
+const lowerCaseKeysWhitelist = (obj) => {
     const keys = Object.keys(obj);
     const map = {};
     keys.forEach((key) => {
@@ -50,6 +50,14 @@ const lowerCaseKeys = (obj) => {
         if (whiteListedColumns.includes(lowKey)) {
             map[lowKey] = obj[key];
         }
+    });
+    return map;
+}
+const lowerCaseKeys = (obj) => {
+    const keys = Object.keys(obj);
+    const map = {};
+    keys.forEach((key) => {
+        map[key.toLowerCase()] = obj[key];
     });
     return map;
 }
@@ -87,7 +95,7 @@ async function syncBilling() {
             }
         } else {
             // New record
-            newRecords.push(lowerCaseKeys(localRecord));
+            newRecords.push(lowerCaseKeysWhitelist(localRecord));
         }
     }
     console.log('Loans:', newRecords.length + '.', 'Releases:', recordsToUpdate.length + '.')
@@ -151,7 +159,7 @@ async function syncCustomerMaster() {
         const supabaseRecord = supabaseCustomerMap.get(localRecord.code);
 
         if (!supabaseRecord) {
-            newRecords.push(localRecord);
+            newRecords.push(lowerCaseKeys(localRecord));
         }
     }
     console.log('New Customers: ', newRecords.length)
