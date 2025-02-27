@@ -1,6 +1,6 @@
 @echo off
 REM Change directory to the folder containing your Node project.
-cd /d "E:\\i\\finance1"
+cd /d "C:\Users\MahaveerBankers\smb-dif"
 
 REM Execute the npm command.
 npm run diff
