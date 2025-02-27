@@ -1,10 +1,11 @@
 import MDBReader from "mdb-reader";
 import fs from "fs";
 import {createClient} from "@supabase/supabase-js";
-
+import dotenv from "dotenv";
+dotenv.config();
 
 // Load the .mdb file
-const buffer = fs.readFileSync('./pawn.mdb');
+const buffer = fs.readFileSync(process.env.PAWN_PATH);
 const reader = new MDBReader(buffer);
 
 // Extract tables
@@ -17,8 +18,8 @@ billingData = billingData.filter(record => new Date(record.date) >= new Date('20
 const customerMasterData = customerMasterTable.getData();
 
 // Initialize Supabase
-const supabaseUrl = 'https://elckcrvxdqtyklgegswc.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsY2tjcnZ4ZHF0eWtsZ2Vnc3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODgyOTYsImV4cCI6MjA1NTk2NDI5Nn0.USK-VAxkSDwQxMTHYXixTwZaLiHrSwua_NWRlxcYROk';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const whiteListedColumns = [

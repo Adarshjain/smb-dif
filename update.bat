@@ -1,6 +1,6 @@
 @echo off
 REM Change directory to the folder containing your Node project.
-cd /d "C:\Path\To\Your\Folder"
+cd /d "E:\\i\\finance1"
 
 REM Execute the npm command.
 npm run diff
