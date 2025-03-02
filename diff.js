@@ -254,5 +254,6 @@ async function syncCustomerMaster() {
 // Execute the sync functions
 (async () => {
     await syncBilling();
+    await syncItemDes();
     await syncCustomerMaster();
 })();
