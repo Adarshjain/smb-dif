@@ -192,7 +192,7 @@ async function syncItemDes() {
         const updates = recordsToUpdate.map(record => ({
             serial: record.serial,
             loanno: record.loanno,
-            status: record.STATUS,
+            status: record.STATUS || 'bug',
             redate: record.redate,
         }));
 
