@@ -86,7 +86,7 @@ async function syncBilling() {
     const recordsToUpdate = [];
 
     // Iterate over local billing data
-    for (const localRecord of itemdesData) {
+    for (const localRecord of billingData) {
         const key = `${localRecord.serial}-${localRecord.nos}`;
         const supabaseRecord = supabaseBillingMap.get(key);
 
