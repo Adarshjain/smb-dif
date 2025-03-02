@@ -120,16 +120,9 @@ async function syncBilling() {
 
     // Update existing records
     if (recordsToUpdate.length > 0) {
-        const updates = recordsToUpdate.map(record => ({
-            serial: record.serial,
-            nos: record.nos,
-            status: record.STATUS,
-            redate: record.redate,
-        }));
-
         const {error: updateError} = await supabase
             .from('billing')
-            .upsert(updates, {onConflict: ['serial', 'nos']});
+            .upsert(recordsToUpdate, {onConflict: ['serial', 'nos']});
 
         if (error) {
             console.error("Error updating billing records:", error);
@@ -195,16 +188,9 @@ async function syncItemDes() {
 
     // Update existing records
     if (recordsToUpdate.length > 0) {
-        const updates = recordsToUpdate.map(record => ({
-            serial: record.serial,
-            loanno: record.loanno,
-            status: record.STATUS,
-            redate: record.redate,
-        }));
-
         const {error: updateError} = await supabase
             .from('itemdes')
-            .upsert(updates, {onConflict: ['serial', 'loanno']});
+            .upsert(recordsToUpdate, {onConflict: ['serial', 'loanno']});
 
         if (error) {
             console.error("Error updating itemdes records:", error);
