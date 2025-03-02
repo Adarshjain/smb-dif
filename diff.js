@@ -141,7 +141,7 @@ async function syncItemDes() {
     // Fetch existing records from Supabase
     const {data: supabaseItemdesData, error} = await supabase
         .from('itemdes')
-        .select('serial, nos, status');
+        .select('serial, loanno, status');
 
     if (error) {
         console.error('Error fetching itemdes data from Supabase:', error);
@@ -150,16 +150,16 @@ async function syncItemDes() {
 
     // Create a map of existing records for quick lookup
     const supabaseItemdesMap = new Map(
-        supabaseItemdesData.map((record) => [`${record.serial}-${record.nos}`, record])
+        supabaseItemdesData.map((record) => [`${record.serial}-${record.loanno}`, record])
     );
 
     // Arrays to hold new records and records to update
     const newRecords = [];
     const recordsToUpdate = [];
 
-    // Iterate over local billing data
+    // Iterate over local itemdes data
     for (const localRecord of itemdesData) {
-        const key = `${localRecord.serial}-${localRecord.nos}`;
+        const key = `${localRecord.serial}-${localRecord.loanno}`;
         const supabaseRecord = supabaseItemdesMap.get(key);
 
         if (supabaseRecord) {
@@ -191,14 +191,14 @@ async function syncItemDes() {
     if (recordsToUpdate.length > 0) {
         const updates = recordsToUpdate.map(record => ({
             serial: record.serial,
-            nos: record.nos,
+            loanno: record.loanno,
             status: record.STATUS,
             redate: record.redate,
         }));
 
         const {error: updateError} = await supabase
             .from('itemdes')
-            .upsert(updates, {onConflict: ['serial', 'nos']});
+            .upsert(updates, {onConflict: ['serial', 'loanno']});
 
         if (error) {
             console.error("Error updating itemdes records:", error);
