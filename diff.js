@@ -2,6 +2,7 @@ import MDBReader from "mdb-reader";
 import fs from "fs";
 import {createClient} from "@supabase/supabase-js";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 // Load the .mdb file
@@ -162,19 +163,19 @@ async function syncItemDes() {
     // Iterate over local itemdes data
     for (const localRecord of itemdesData) {
         const key = `${localRecord.serial}-${localRecord.loanno}`;
-        const supabaseRecord = supabaseItemdesMap.get(key);
-
-        if (!localRecord.STATUS) {
-            localRecord.STATUS = supabaseBillingMap.get(key)?.status || 'bug'
-        }
-        if (supabaseRecord) {
-            // Check if STATUS has changed
-            if (supabaseRecord.status !== localRecord.STATUS) {
-                recordsToUpdate.push(localRecord);
+        const spBillingRecord = supabaseBillingMap.get(key);
+        if (spBillingRecord) {
+            const spItemdesRecord = supabaseItemdesMap.get(key);
+            localRecord.STATUS = spBillingRecord.status;
+            if (spItemdesRecord) {
+                // Check if STATUS has changed
+                if (spItemdesRecord.status !== localRecord.STATUS) {
+                    recordsToUpdate.push(localRecord);
+                }
+            } else {
+                // New record
+                newRecords.push(lowerCaseKeys(localRecord));
             }
-        } else {
-            // New record
-            newRecords.push(lowerCaseKeys(localRecord));
         }
     }
     console.log('Item des', 'New Record:', newRecords.length + '.', 'Updates:', recordsToUpdate.length + '.')
