@@ -164,15 +164,15 @@ async function syncItemDes() {
         const key = `${localRecord.serial}-${localRecord.loanno}`;
         const supabaseRecord = supabaseItemdesMap.get(key);
 
+        if (!localRecord.STATUS) {
+            localRecord.STATUS = supabaseBillingMap.get(key)?.status || 'bug'
+        }
         if (supabaseRecord) {
             // Check if STATUS has changed
             if (supabaseRecord.status !== localRecord.STATUS) {
                 recordsToUpdate.push(localRecord);
             }
         } else {
-            if (!localRecord.STATUS) {
-                localRecord.STATUS = supabaseBillingMap.get(key)?.status || 'bug'
-            }
             // New record
             newRecords.push(lowerCaseKeys(localRecord));
         }
