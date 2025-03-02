@@ -64,6 +64,8 @@ const lowerCaseKeys = (obj) => {
     return map;
 }
 
+let supabaseBillingMap;
+
 // Function to sync billing table
 async function syncBilling() {
     // Fetch existing records from Supabase
@@ -77,7 +79,7 @@ async function syncBilling() {
     }
 
     // Create a map of existing records for quick lookup
-    const supabaseBillingMap = new Map(
+    supabaseBillingMap = new Map(
         supabaseBillingData.map((record) => [`${record.serial}-${record.nos}`, record])
     );
 
@@ -168,6 +170,9 @@ async function syncItemDes() {
                 recordsToUpdate.push(localRecord);
             }
         } else {
+            if (!localRecord.STATUS) {
+                localRecord.STATUS = supabaseBillingMap.get(key)?.status || 'bug'
+            }
             // New record
             newRecords.push(lowerCaseKeys(localRecord));
         }
@@ -192,7 +197,7 @@ async function syncItemDes() {
         const updates = recordsToUpdate.map(record => ({
             serial: record.serial,
             loanno: record.loanno,
-            status: record.STATUS || 'bug',
+            status: record.STATUS,
             redate: record.redate,
         }));
 
