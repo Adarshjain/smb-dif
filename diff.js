@@ -11,11 +11,13 @@ const reader = new MDBReader(buffer);
 // Extract tables
 const billingTable = reader.getTable('billing');
 const customerMasterTable = reader.getTable('customermaster');
+const itemdesTable = reader.getTable('itemdes');
 
 // Get data
 let billingData = billingTable.getData();
 billingData = billingData.filter(record => new Date(record.date) >= new Date('2020-01-01'));
 const customerMasterData = customerMasterTable.getData();
+const itemdesData = itemdesTable.getData();
 
 // Initialize Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -84,7 +86,7 @@ async function syncBilling() {
     const recordsToUpdate = [];
 
     // Iterate over local billing data
-    for (const localRecord of billingData) {
+    for (const localRecord of itemdesData) {
         const key = `${localRecord.serial}-${localRecord.nos}`;
         const supabaseRecord = supabaseBillingMap.get(key);
 
@@ -130,6 +132,78 @@ async function syncBilling() {
             console.error("Error updating billing records:", error);
         } else {
             console.log("Billing records updated successfully.");
+        }
+    }
+}
+
+// Function to sync itemdes table
+async function syncItemDes() {
+    // Fetch existing records from Supabase
+    const {data: supabaseItemdesData, error} = await supabase
+        .from('itemdes')
+        .select('serial, nos, status');
+
+    if (error) {
+        console.error('Error fetching itemdes data from Supabase:', error);
+        return;
+    }
+
+    // Create a map of existing records for quick lookup
+    const supabaseItemdesMap = new Map(
+        supabaseItemdesData.map((record) => [`${record.serial}-${record.nos}`, record])
+    );
+
+    // Arrays to hold new records and records to update
+    const newRecords = [];
+    const recordsToUpdate = [];
+
+    // Iterate over local billing data
+    for (const localRecord of itemdesData) {
+        const key = `${localRecord.serial}-${localRecord.nos}`;
+        const supabaseRecord = supabaseItemdesMap.get(key);
+
+        if (supabaseRecord) {
+            // Check if STATUS has changed
+            if (supabaseRecord.status !== localRecord.STATUS) {
+                recordsToUpdate.push(localRecord);
+            }
+        } else {
+            // New record
+            newRecords.push(lowerCaseKeys(localRecord));
+        }
+    }
+    console.log('Item des', 'New Record:', newRecords.length + '.', 'Updates:', recordsToUpdate.length + '.')
+    // Insert new records
+    if (newRecords.length > 0) {
+        const {error: insertError, count, statusText} = await supabase
+            .from('itemdes')
+            .insert(newRecords);
+
+        if (insertError) {
+            console.error('Error inserting new itemdes records:', insertError);
+        } else {
+            console.log(`Inserted ${newRecords.length} new itemdes records.`);
+        }
+    }
+
+
+    // Update existing records
+    if (recordsToUpdate.length > 0) {
+        const updates = recordsToUpdate.map(record => ({
+            serial: record.serial,
+            nos: record.nos,
+            status: record.STATUS,
+            redate: record.redate,
+        }));
+
+        const {error: updateError} = await supabase
+            .from('itemdes')
+            .upsert(updates, {onConflict: ['serial', 'nos']});
+
+        if (error) {
+            console.error("Error updating itemdes records:", error);
+        } else {
+            console.log("Itemdes records updated successfully.");
         }
     }
 }
