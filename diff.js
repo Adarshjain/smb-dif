@@ -87,16 +87,20 @@ async function syncBilling() {
     // Arrays to hold new records and records to update
     const newRecords = [];
     const recordsToUpdate = [];
+    const skipKeys = ['E-595'];
 
     // Iterate over local billing data
     for (const localRecord of billingData) {
         const key = `${localRecord.serial}-${localRecord.nos}`;
         const supabaseRecord = supabaseBillingMap.get(key);
 
+        if (skipKeys.includes(key)){
+            continue;
+        }
         if (supabaseRecord) {
             // Check if STATUS has changed
             if (supabaseRecord.status !== localRecord.STATUS) {
-                recordsToUpdate.push(localRecord);
+                recordsToUpdate.push(lowerCaseKeysWhitelist(localRecord));
             }
         } else {
             // New record
@@ -163,7 +167,7 @@ async function syncItemDes() {
             if (spItemdesRecord) {
                 // Check if STATUS has changed
                 if (spItemdesRecord.status !== localRecord.STATUS) {
-                    recordsToUpdate.push(localRecord);
+                    recordsToUpdate.push(lowerCaseKeys(localRecord));
                 }
             } else {
                 // New record
@@ -185,7 +189,6 @@ async function syncItemDes() {
         }
     }
 
-
     // Update existing records
     if (recordsToUpdate.length > 0) {
         const {error: updateError} = await supabase
@@ -193,7 +196,7 @@ async function syncItemDes() {
             .upsert(recordsToUpdate, {onConflict: ['serial', 'loanno']});
 
         if (error) {
-            console.error("Error updating itemdes records:", error);
+            console.error("Error updating itemdes records:", updateError);
         } else {
             console.log("Itemdes records updated successfully.");
         }
